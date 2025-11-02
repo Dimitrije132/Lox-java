@@ -1,4 +1,53 @@
 package lox;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+
 public class Lox {
+    public static void main(String[] args) throws IOException{
+        if (args.length > 1) { //error
+            System.out.println("Usage: jlox[script]");
+            System.exit(64);
+        } else if (args.length == 1) { //one arguemnt means it's the source file
+            runFile(args[0]);
+        }else { //no arguments
+            runPrompt();
+        }
+    }
+
+    private static void runFile(String path) throws IOException{
+        //read file as bytes and convert it to string and pass it as source to run()
+        byte[] bytes = Files.readAllBytes(Paths.get(path));
+        run(new String(bytes,Charset.defaultCharset()));
+    }
+    private static void runPrompt() throws IOException{
+        //System.in gives us bytes from keyboard input and then InputStreamReader translates it into characters
+        InputStreamReader input = new InputStreamReader(System.in);
+        BufferedReader reader = new BufferedReader(input);
+
+        for (;;){
+            System.out.println("> ");
+            String line = reader.readLine();
+            if (line == null) break;
+            run(line);
+        }
+    }
+    private static void run(String source){
+        //source is either whole file (runFIle) or a line (runPrompt)
+        Scanner scanner = new Scanner(source);
+        //split source into tokens
+        List<Token>tokens = scanner.scanTokens();
+
+        //for now just print tokens
+        for (Token token : tokens){
+            System.out.println(token);
+        }
+    }
 }
+
+
